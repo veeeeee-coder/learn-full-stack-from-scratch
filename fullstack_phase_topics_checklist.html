@@ -1,0 +1,399 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.root{padding:14px 4px 32px}
+.summary-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px}
+.stat-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.phase{margin-bottom:10px;border-radius:var(--border-radius-lg);border:1px solid var(--color-border-tertiary);overflow:hidden}
+.ph{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;user-select:none;background:var(--color-background-secondary)}
+.ph:hover{background:var(--color-background-tertiary)}
+.ph-badge{font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ph-title{font-size:14px;font-weight:500;flex:1}
+.ph-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.ph-prog{font-size:11px;color:var(--color-text-tertiary);white-space:nowrap}
+.ph-bar-wrap{width:60px;height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden}
+.ph-bar{height:100%;border-radius:2px;background:var(--color-text-success);transition:width .3s}
+.chev{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s;flex-shrink:0}
+.chev.open{transform:rotate(180deg)}
+.ph-body{display:none;border-top:1px solid var(--color-border-tertiary)}
+.ph-body.open{display:block}
+.section{padding:10px 14px 2px}
+.sec-title{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-bottom:10px}
+.topic{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);cursor:pointer;transition:border-color .12s,background .12s}
+.topic:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.topic.done{background:var(--color-background-success);border-color:var(--color-border-success)}
+.cb{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;margin-top:1px;transition:all .12s}
+.topic.done .cb{background:var(--color-text-success);border-color:var(--color-text-success);color:#fff}
+.t-name{font-size:12px;font-weight:500;line-height:1.4;color:var(--color-text-primary)}
+.topic.done .t-name{color:var(--color-text-success)}
+.t-hint{font-size:11px;color:var(--color-text-secondary);line-height:1.4;margin-top:2px}
+.project-box{margin:2px 14px 12px;padding:10px 12px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.proj-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.proj-item{font-size:12px;color:var(--color-text-secondary);padding:3px 0;line-height:1.5;display:flex;gap:6px}
+.proj-item::before{content:"→";color:var(--color-text-tertiary);flex-shrink:0}
+</style>
+
+<div class="root">
+<div class="summary-row">
+  <div class="stat"><div class="stat-val" id="s-done">0</div><div class="stat-lbl">topics done</div></div>
+  <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">total topics</div></div>
+  <div class="stat"><div class="stat-val" id="s-pct">0%</div><div class="stat-lbl">complete</div></div>
+</div>
+<div id="pc"></div>
+</div>
+
+<script>
+const DATA=[
+{id:1,label:"Phase 1",title:"Internet & Dev Basics",color:"#7F77DD",bg:"#EEEDFE",
+sections:[
+{name:"How the internet works",topics:[
+{n:"HTTP & HTTPS",h:"request/response, status codes 200/404/500"},
+{n:"DNS",h:"how domain names resolve to IP addresses"},
+{n:"Browsers",h:"how rendering works, dev tools"},
+{n:"Hosting & domains",h:"shared, VPS, cloud — what's the difference"},
+{n:"TCP/IP basics",h:"packets, ports, protocols"},
+]},
+{name:"Command line",topics:[
+{n:"Navigation",h:"cd, ls, pwd, mkdir, rm, cp, mv"},
+{n:"File permissions",h:"chmod, chown, read/write/execute"},
+{n:"Piping & redirection",h:"| > >> grep cat"},
+{n:"Process management",h:"ps, kill, top, background jobs &"},
+{n:"SSH basics",h:"ssh-keygen, connecting to remote servers"},
+]},
+{name:"Git & GitHub",topics:[
+{n:"Core commands",h:"init, add, commit, status, log"},
+{n:"Branching",h:"branch, checkout, merge, rebase"},
+{n:"Remote repos",h:"push, pull, fetch, clone, origin"},
+{n:"Pull requests",h:"fork, PR workflow, code review"},
+{n:".gitignore",h:"what to exclude, common patterns"},
+]},
+],
+projects:[
+"Create a GitHub account and push your first repo",
+"Practice 10 git commits with meaningful messages",
+"Set up SSH key auth with GitHub",
+]},
+
+{id:2,label:"Phase 2",title:"Frontend Foundations",color:"#1D9E75",bg:"#E1F5EE",
+sections:[
+{name:"HTML5",topics:[
+{n:"Semantic tags",h:"header, nav, main, section, article, footer"},
+{n:"Forms & inputs",h:"form, input types, label, required, validation"},
+{n:"Tables",h:"thead, tbody, tr, td, th, colspan"},
+{n:"Accessibility",h:"alt text, ARIA roles, tab order, screen readers"},
+{n:"Meta tags & SEO",h:"title, description, viewport, og: tags"},
+]},
+{name:"CSS fundamentals",topics:[
+{n:"Box model",h:"margin, padding, border, content, box-sizing"},
+{n:"Selectors & specificity",h:"class, id, pseudo, combinators, cascade"},
+{n:"Positioning",h:"static, relative, absolute, fixed, sticky"},
+{n:"Flexbox",h:"flex-direction, justify-content, align-items, wrap"},
+{n:"CSS Grid",h:"grid-template, gap, span, auto-fill, minmax"},
+{n:"Responsive design",h:"media queries, mobile-first, breakpoints"},
+{n:"CSS variables",h:"--var declaration, var() usage, theming"},
+{n:"Transitions & animations",h:"transition, @keyframes, transform"},
+]},
+{name:"JavaScript",topics:[
+{n:"Variables & types",h:"let, const, var, string, number, boolean, null"},
+{n:"Functions",h:"declarations, expressions, arrow functions, scope"},
+{n:"Arrays & objects",h:"map, filter, reduce, spread, destructuring"},
+{n:"DOM manipulation",h:"querySelector, addEventListener, innerHTML"},
+{n:"Events",h:"click, submit, keydown, event.preventDefault"},
+{n:"Promises & async/await",h:"fetch, .then, try/catch, async functions"},
+{n:"ES6+ features",h:"modules, template literals, optional chaining"},
+{n:"Error handling",h:"try/catch/finally, throwing errors"},
+]},
+],
+projects:[
+"Personal portfolio page (HTML + CSS only)",
+"To-do list app with vanilla JavaScript",
+"Weather app using fetch + public API",
+]},
+
+{id:3,label:"Phase 3",title:"React & Frontend Framework",color:"#185FA5",bg:"#E6F1FB",
+sections:[
+{name:"React core",topics:[
+{n:"JSX syntax",h:"HTML in JS, expressions, fragments"},
+{n:"Components",h:"function components, props, composition"},
+{n:"State — useState",h:"initial state, setState, re-renders"},
+{n:"useEffect",h:"side effects, dependencies, cleanup"},
+{n:"Event handling",h:"onClick, onChange, forms in React"},
+{n:"Conditional rendering",h:"&&, ternary, early returns"},
+{n:"Lists & keys",h:".map(), unique key prop, why it matters"},
+{n:"Component lifecycle",h:"mount, update, unmount with hooks"},
+]},
+{name:"Intermediate React",topics:[
+{n:"useContext",h:"Context API, Provider, Consumer pattern"},
+{n:"useRef",h:"DOM refs, persist values without re-render"},
+{n:"Custom hooks",h:"extracting logic, naming convention useFoo"},
+{n:"React Router",h:"BrowserRouter, Route, Link, useParams, useNavigate"},
+{n:"React Query / SWR",h:"data fetching, caching, loading/error states"},
+{n:"Redux Toolkit",h:"store, slices, useSelector, useDispatch"},
+]},
+{name:"Tooling & styling",topics:[
+{n:"Vite setup",h:"create project, dev server, build, env vars"},
+{n:"TypeScript basics",h:"types, interfaces, generics, props typing"},
+{n:"Tailwind CSS",h:"utility classes, responsive prefix, dark mode"},
+{n:"ESLint & Prettier",h:"lint rules, format on save, .eslintrc config"},
+]},
+],
+projects:[
+"GitHub user search app (React + GitHub API)",
+"Expense tracker with state management",
+"Movie app with React Router (detail pages)",
+]},
+
+{id:4,label:"Phase 4",title:"Backend — Node.js & Express",color:"#BA7517",bg:"#FAEEDA",
+sections:[
+{name:"Node.js fundamentals",topics:[
+{n:"Event loop",h:"non-blocking I/O, callbacks, how Node works"},
+{n:"Built-in modules",h:"fs, path, os, http, events, crypto"},
+{n:"npm & package.json",h:"install, scripts, devDependencies, versioning"},
+{n:"CommonJS vs ES Modules",h:"require vs import/export, .mjs"},
+{n:"Environment variables",h:".env file, dotenv package, process.env"},
+]},
+{name:"Express.js",topics:[
+{n:"Routing",h:"GET, POST, PUT, DELETE, route params, query strings"},
+{n:"Middleware",h:"app.use(), custom middleware, order matters"},
+{n:"Request & response",h:"req.body, req.params, res.json, res.status"},
+{n:"Error handling",h:"error middleware (err,req,res,next), 404 handler"},
+{n:"Static files",h:"express.static(), serving frontend from backend"},
+{n:"CORS",h:"cors package, allowed origins, preflight"},
+]},
+{name:"Auth & security",topics:[
+{n:"JWT authentication",h:"sign, verify, payload, expiry, refresh tokens"},
+{n:"Password hashing",h:"bcrypt, salt rounds, compare function"},
+{n:"Session management",h:"express-session, cookies, secure/httpOnly flags"},
+{n:"Input validation",h:"Zod or Joi, sanitize user input, 400 errors"},
+{n:"Rate limiting",h:"express-rate-limit, brute force prevention"},
+]},
+],
+projects:[
+"REST API — full CRUD for a resource (e.g. notes)",
+"Auth system: register, login, JWT protected routes",
+"Build a URL shortener API",
+]},
+
+{id:5,label:"Phase 5",title:"Databases",color:"#993C1D",bg:"#FAECE7",
+sections:[
+{name:"SQL & PostgreSQL",topics:[
+{n:"Core SQL",h:"SELECT, INSERT, UPDATE, DELETE, WHERE, ORDER BY"},
+{n:"Joins",h:"INNER, LEFT, RIGHT, FULL — when to use each"},
+{n:"Aggregations",h:"GROUP BY, HAVING, COUNT, SUM, AVG, MAX"},
+{n:"Indexes",h:"why they speed up reads, when not to use them"},
+{n:"Transactions",h:"BEGIN, COMMIT, ROLLBACK, ACID properties"},
+{n:"PostgreSQL setup",h:"install, psql CLI, create DB/table, roles"},
+{n:"Relations & FK",h:"one-to-many, many-to-many, foreign keys, joins"},
+]},
+{name:"ORM / Query builder",topics:[
+{n:"Prisma setup",h:"schema.prisma, datasource, generator"},
+{n:"Prisma models",h:"model fields, relations, @id, @unique"},
+{n:"Prisma queries",h:"findMany, findUnique, create, update, delete"},
+{n:"Migrations",h:"prisma migrate dev, migrate deploy"},
+]},
+{name:"NoSQL & caching",topics:[
+{n:"MongoDB basics",h:"documents, collections, _id, BSON"},
+{n:"Mongoose",h:"Schema, Model, CRUD methods, populate"},
+{n:"Redis basics",h:"SET/GET, TTL, use case for caching sessions"},
+{n:"DB design",h:"normalization, ER diagrams, when to denormalize"},
+]},
+],
+projects:[
+"Design and build a schema for a blog (users, posts, comments)",
+"Build an API backed by PostgreSQL using Prisma",
+]},
+
+{id:6,label:"Phase 6",title:"Full Stack Integration",color:"#534AB7",bg:"#EEEDFE",
+sections:[
+{name:"Next.js",topics:[
+{n:"App Router",h:"pages vs app dir, layouts, loading, error files"},
+{n:"Server components",h:"default server, 'use client', when to use each"},
+{n:"Data fetching",h:"fetch in server components, revalidate, cache"},
+{n:"API routes",h:"route.ts handlers, GET/POST, dynamic routes"},
+{n:"SSR vs SSG vs ISR",h:"when each applies, getStaticProps equivalent"},
+{n:"Image & font optimization",h:"next/image, next/font, lazy loading"},
+{n:"Middleware",h:"middleware.ts, auth guard, redirects"},
+]},
+{name:"Full stack features",topics:[
+{n:"File uploads",h:"multer for Node, or UploadThing, S3 presigned URL"},
+{n:"Email sending",h:"Nodemailer, Resend, SendGrid — transactional email"},
+{n:"OAuth / social login",h:"NextAuth.js, Google/GitHub provider, session"},
+{n:"WebSockets",h:"Socket.io, ws library, real-time events"},
+{n:"Search",h:"basic SQL LIKE, or Algolia, or pg full-text search"},
+{n:"Payments basics",h:"Stripe checkout, webhooks, subscription flow"},
+]},
+],
+projects:[
+"Full stack app: auth + CRUD + DB (e.g. job board, blog)",
+"Real-time feature: live notifications or chat",
+]},
+
+{id:7,label:"Phase 7",title:"DevOps & Deployment",color:"#0F6E56",bg:"#E1F5EE",
+sections:[
+{name:"Docker",topics:[
+{n:"Images & containers",h:"docker run, build, ps, stop, rm"},
+{n:"Dockerfile",h:"FROM, COPY, RUN, EXPOSE, CMD, multi-stage"},
+{n:"docker-compose",h:"services, volumes, networks, depends_on"},
+{n:"Docker networking",h:"bridge, host, connecting containers"},
+]},
+{name:"CI/CD",topics:[
+{n:"GitHub Actions",h:"workflow YAML, on: push, jobs, steps, runners"},
+{n:"Automated testing in CI",h:"run tests on every PR, fail fast"},
+{n:"Build & deploy pipeline",h:"build → test → deploy stages"},
+{n:"Secrets management",h:"GitHub Secrets, env vars in workflows"},
+]},
+{name:"Cloud & servers",topics:[
+{n:"Linux server setup",h:"nginx config, reverse proxy, process manager (pm2)"},
+{n:"HTTPS & SSL",h:"Let's Encrypt, Certbot, domain DNS setup"},
+{n:"PaaS deployment",h:"Vercel, Railway, Render — zero config deploys"},
+{n:"AWS basics",h:"EC2, S3, RDS, IAM roles, security groups"},
+{n:"CDN",h:"CloudFront, what it does, when to use one"},
+]},
+],
+projects:[
+"Dockerize your full stack app with docker-compose",
+"Set up a GitHub Actions workflow: test + deploy on push",
+"Deploy a Node API to a VPS with nginx + SSL",
+]},
+
+{id:8,label:"Phase 8",title:"Testing & Code Quality",color:"#3B6D11",bg:"#EAF3DE",
+sections:[
+{name:"Unit & integration testing",topics:[
+{n:"Jest setup",h:"describe, it, expect, beforeEach, afterEach"},
+{n:"Assertions",h:"toBe, toEqual, toContain, toThrow, toHaveBeenCalled"},
+{n:"Mocking",h:"jest.fn(), jest.mock(), mock modules, spies"},
+{n:"Async tests",h:"async/await in tests, resolves/rejects matchers"},
+{n:"API testing with Supertest",h:"test Express routes without starting server"},
+]},
+{name:"Frontend testing",topics:[
+{n:"React Testing Library",h:"render, screen, getByRole, findByText"},
+{n:"User event simulation",h:"userEvent.click, type, clear"},
+{n:"Snapshot testing",h:"toMatchSnapshot, when useful vs overused"},
+{n:"Mocking fetch/API calls",h:"msw (Mock Service Worker) for API mocking"},
+]},
+{name:"E2E & quality",topics:[
+{n:"Playwright basics",h:"page.goto, locator, click, fill, expect"},
+{n:"E2E test scenarios",h:"login flow, form submit, navigation tests"},
+{n:"Code coverage",h:"--coverage flag, what % means, what to target"},
+{n:"SOLID principles",h:"single responsibility, open/closed, DRY"},
+]},
+],
+projects:[
+"Write unit tests for your auth/API endpoints",
+"Write React Testing Library tests for a form component",
+"Write one E2E test covering the full user login flow",
+]},
+
+{id:9,label:"Phase 9",title:"Advanced & Portfolio",color:"#993556",bg:"#FBEAF0",
+sections:[
+{name:"Security",topics:[
+{n:"OWASP Top 10",h:"XSS, SQLi, broken auth, IDOR, CSRF — know each"},
+{n:"XSS prevention",h:"escape output, Content Security Policy, DOMPurify"},
+{n:"CSRF protection",h:"SameSite cookies, CSRF tokens"},
+{n:"SQL injection",h:"parameterized queries, never string-concat SQL"},
+{n:"Security headers",h:"Helmet.js, HSTS, X-Frame-Options"},
+]},
+{name:"System design",topics:[
+{n:"Horizontal vs vertical scaling",h:"what each means and when to use"},
+{n:"Caching strategies",h:"cache-aside, write-through, TTL, Redis"},
+{n:"Load balancing",h:"round-robin, least connections, sticky sessions"},
+{n:"Message queues",h:"Bull/BullMQ, job queues, async processing"},
+{n:"Database sharding",h:"what it is, read replicas, connection pooling"},
+]},
+{name:"Advanced topics",topics:[
+{n:"GraphQL",h:"schema, resolvers, queries, mutations, Apollo"},
+{n:"gRPC basics",h:"protobuf, when to use over REST"},
+{n:"Microservices",h:"service boundaries, inter-service comms, trade-offs"},
+{n:"Performance",h:"Core Web Vitals, Lighthouse, bundle analysis"},
+{n:"Accessibility (WCAG)",h:"AA standard, audit tools, keyboard navigation"},
+]},
+{name:"Portfolio & career",topics:[
+{n:"3-5 portfolio projects",h:"each with auth, DB, API, deployed and live"},
+{n:"GitHub profile polish",h:"pinned repos, good READMEs, contribution graph"},
+{n:"Technical writing",h:"blog posts or docs for at least 1 project"},
+{n:"Open source contribution",h:"find a good first issue, submit a PR"},
+{n:"Interview prep",h:"LeetCode easy/medium, system design practice"},
+]},
+],
+projects:[
+"Security audit your own app — find and fix 3 vulnerabilities",
+"Build a system design document for one of your projects",
+"Publish your portfolio site with 3+ live projects",
+]},
+];
+
+const done=new Set(JSON.parse(localStorage.getItem('fsd2')||'[]'));
+function save(){try{localStorage.setItem('fsd2',JSON.stringify([...done]))}catch(e){}}
+
+function allTopics(){let t=[];DATA.forEach(p=>p.sections.forEach(s=>s.topics.forEach(tp=>t.push(p.id+'|'+tp.n))));return t;}
+function updateSummary(){
+  const all=allTopics();
+  const d=all.filter(k=>done.has(k)).length;
+  document.getElementById('s-done').textContent=d;
+  document.getElementById('s-total').textContent=all.length;
+  document.getElementById('s-pct').textContent=Math.round(d/all.length*100)+'%';
+}
+function updatePhaseBar(pid){
+  const p=DATA.find(x=>x.id===pid);
+  const keys=[];p.sections.forEach(s=>s.topics.forEach(t=>keys.push(pid+'|'+t.n)));
+  const d=keys.filter(k=>done.has(k)).length;
+  document.getElementById('pbar'+pid).style.width=(d/keys.length*100)+'%';
+  document.getElementById('pprog'+pid).textContent=d+'/'+keys.length;
+}
+
+function build(){
+  const c=document.getElementById('pc');
+  DATA.forEach(p=>{
+    const totalTopics=p.sections.reduce((a,s)=>a+s.topics.length,0);
+    const div=document.createElement('div');div.className='phase';
+    div.innerHTML=`
+    <div class="ph" onclick="tog(${p.id})">
+      <span class="ph-badge" style="background:${p.bg};color:${p.color}">${p.label}</span>
+      <span class="ph-title">${p.title}</span>
+      <div class="ph-right">
+        <span class="ph-prog" id="pprog${p.id}">0/${totalTopics}</span>
+        <div class="ph-bar-wrap"><div class="ph-bar" id="pbar${p.id}" style="width:0%"></div></div>
+        <span class="chev" id="chv${p.id}">▼</span>
+      </div>
+    </div>
+    <div class="ph-body" id="pb${p.id}"></div>`;
+    c.appendChild(div);
+    const body=div.querySelector(`#pb${p.id}`);
+    p.sections.forEach(s=>{
+      const sec=document.createElement('div');sec.className='section';
+      sec.innerHTML=`<div class="sec-title">${s.name}</div><div class="topic-grid" id="tg${p.id}_${s.name.replace(/\W/g,'_')}"></div>`;
+      body.appendChild(sec);
+      const grid=sec.querySelector('.topic-grid');
+      s.topics.forEach(t=>{
+        const key=p.id+'|'+t.n;
+        const el=document.createElement('div');
+        el.className='topic'+(done.has(key)?' done':'');
+        el.innerHTML=`<span class="cb">${done.has(key)?'✓':''}</span><div><div class="t-name">${t.n}</div><div class="t-hint">${t.h}</div></div>`;
+        el.onclick=()=>{
+          if(done.has(key)){done.delete(key);el.classList.remove('done');el.querySelector('.cb').textContent=''}
+          else{done.add(key);el.classList.add('done');el.querySelector('.cb').textContent='✓'}
+          save();updatePhaseBar(p.id);updateSummary();
+        };
+        grid.appendChild(el);
+      });
+    });
+    const pb=document.createElement('div');pb.className='project-box';
+    pb.innerHTML=`<div class="proj-label">Phase project(s)</div>`+p.projects.map(pr=>`<div class="proj-item">${pr}</div>`).join('');
+    body.appendChild(pb);
+    updatePhaseBar(p.id);
+  });
+  updateSummary();
+}
+
+function tog(id){
+  document.getElementById('pb'+id).classList.toggle('open');
+  document.getElementById('chv'+id).classList.toggle('open');
+}
+
+build();
+tog(1);
+</script>
