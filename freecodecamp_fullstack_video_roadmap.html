@@ -1,0 +1,187 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:14px 4px 28px;font-family:var(--font-sans)}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.yt-logo{background:#FF0000;color:#fff;font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;flex-shrink:0}
+.top-title{font-size:14px;font-weight:500}
+.top-sub{font-size:12px;color:var(--color-text-secondary);margin-left:auto}
+.phase{margin-bottom:10px;border-radius:var(--border-radius-lg);border:1px solid var(--color-border-tertiary);overflow:hidden}
+.phase-hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;background:var(--color-background-secondary)}
+.phase-hdr:hover{background:var(--color-background-tertiary)}
+.badge{font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.p-title{font-size:14px;font-weight:500;flex:1}
+.p-count{font-size:11px;color:var(--color-text-tertiary);margin-left:auto;margin-right:8px}
+.chevron{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.phase-body{display:none;padding:10px 12px 14px;border-top:1px solid var(--color-border-tertiary)}
+.phase-body.open{display:block}
+.body-note{font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;line-height:1.5}
+.video-list{display:flex;flex-direction:column;gap:8px}
+.vcard{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s}
+.vcard:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.vcard-num{font-size:11px;color:var(--color-text-tertiary);font-weight:500;min-width:20px;padding-top:2px}
+.vcard-info{flex:1}
+.vcard-title{font-size:13px;font-weight:500;color:var(--color-text-primary);line-height:1.4}
+.vcard-meta{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.vtag{font-size:11px;padding:1px 7px;border-radius:10px;white-space:nowrap}
+.vtag.covers{background:var(--color-background-info);color:var(--color-text-info)}
+.vtag.dur{background:var(--color-background-secondary);color:var(--color-text-secondary);border:1px solid var(--color-border-tertiary)}
+.yt-btn{font-size:11px;background:#FF0000;color:#fff;padding:3px 10px;border-radius:4px;white-space:nowrap;flex-shrink:0;font-weight:500;align-self:center}
+</style>
+
+<div class="wrap">
+<div class="top-bar">
+  <span class="yt-logo">▶ YouTube</span>
+  <span class="top-title">freeCodeCamp — Full Stack Video Roadmap</span>
+  <span class="top-sub">9 phases · 30+ videos</span>
+</div>
+<div id="phases-container"></div>
+</div>
+
+<script>
+const phases = [
+{
+  id:1, label:"Phase 1", title:"Internet & Dev Basics", color:"#7F77DD", bg:"#EEEDFE",
+  note:"Start here. These 3 videos give you the foundation every developer uses daily.",
+  videos:[
+    {n:"How the Internet Works in 5 Minutes",covers:"HTTP, DNS, IP, browsers",dur:"5 min",url:"https://www.youtube.com/watch?v=7_LPdttKXPc"},
+    {n:"Git & GitHub Full Course for Beginners",covers:"commit, branch, merge, PR, push",dur:"~1 hr",url:"https://www.youtube.com/watch?v=RGOj5yH7evk"},
+    {n:"Linux Command Line Full Course",covers:"bash, files, permissions, piping",dur:"~5 hrs",url:"https://www.youtube.com/watch?v=ZtqBQ68cfJc"},
+  ]
+},
+{
+  id:2, label:"Phase 2", title:"Frontend Foundations", color:"#1D9E75", bg:"#E1F5EE",
+  note:"Two options: watch the bootcamp (covers all 3 together) OR the individual courses below it. Pick one path.",
+  videos:[
+    {n:"Frontend Web Dev Bootcamp — HTML, CSS, JS",covers:"All 3 in one course, project-based",dur:"~21 hrs",url:"https://www.youtube.com/watch?v=zJSY8tbf_ys"},
+    {n:"HTML5 & CSS3 Full Course from Scratch",covers:"Semantics, forms, flexbox, grid",dur:"~11 hrs",url:"https://www.youtube.com/watch?v=mU6anWqZJcc"},
+    {n:"JavaScript Full Course for Beginners",covers:"Variables, DOM, async/await, fetch",dur:"~3 hrs",url:"https://www.youtube.com/watch?v=PkZNo7MFNFg"},
+    {n:"JavaScript Algorithms & Data Structures",covers:"ES6+, OOP, functional, closures",dur:"~10 hrs",url:"https://www.youtube.com/watch?v=t2CEgPsws3U"},
+  ]
+},
+{
+  id:3, label:"Phase 3", title:"Frontend Framework — React", color:"#185FA5", bg:"#E6F1FB",
+  note:"Learn React first, then TypeScript, then put them together. Watch in this order.",
+  videos:[
+    {n:"React Full Course for Beginners (2024)",covers:"Components, hooks, props, state, routing",dur:"~7 hrs",url:"https://www.youtube.com/watch?v=x4rFhThSX04"},
+    {n:"React Hooks Course — All Hooks Explained",covers:"useState, useEffect, useContext, useRef",dur:"~4 hrs",url:"https://www.youtube.com/watch?v=LlvBzyy-558"},
+    {n:"TypeScript — Full Tutorial",covers:"Types, interfaces, generics, enums",dur:"~1 hr",url:"https://www.youtube.com/watch?v=30LWjhZzg50"},
+    {n:"Redux Toolkit Full Tutorial",covers:"Store, slices, dispatch, thunk",dur:"~6 hrs",url:"https://www.youtube.com/watch?v=bbkBuqC1rU4"},
+    {n:"Tailwind CSS Full Course",covers:"Utility classes, responsive, dark mode",dur:"~4 hrs",url:"https://www.youtube.com/watch?v=ft30zcMlFao"},
+  ]
+},
+{
+  id:4, label:"Phase 4", title:"Backend — Node.js & Express", color:"#BA7517", bg:"#FAEEDA",
+  note:"The 8-hour Node+Express course is the core. JWT auth video is separate — watch it after.",
+  videos:[
+    {n:"Node.js & Express.js — Full Course",covers:"Routes, middleware, REST API, CRUD",dur:"~8 hrs",url:"https://www.youtube.com/watch?v=Oe421EPjeBE"},
+    {n:"Node.js Full Course for Beginners",covers:"Modules, fs, events, npm, http",dur:"~7 hrs",url:"https://www.youtube.com/watch?v=f2EqECiTBL8"},
+    {n:"JWT Authentication — Node & Express",covers:"Tokens, bcrypt, login/register flow",dur:"~1.5 hrs",url:"https://www.youtube.com/watch?v=mbsmsi7l3r4"},
+  ]
+},
+{
+  id:5, label:"Phase 5", title:"Databases", color:"#993C1D", bg:"#FAECE7",
+  note:"SQL first — it's the foundation. Then PostgreSQL hands-on, then MongoDB for NoSQL.",
+  videos:[
+    {n:"SQL Tutorial — Full Database Course",covers:"SELECT, JOIN, GROUP BY, indexes",dur:"~4 hrs",url:"https://www.youtube.com/watch?v=HXV3zeQKqGY"},
+    {n:"PostgreSQL Full Course for Beginners",covers:"psql, tables, queries, relations",dur:"~4 hrs",url:"https://www.youtube.com/watch?v=qw--VYLpxG4"},
+    {n:"PERN Stack Course — Postgres, Express, React, Node",covers:"Full stack CRUD with PostgreSQL",dur:"~1 hr",url:"https://www.youtube.com/watch?v=ldYcgPKEZC8"},
+    {n:"MongoDB Crash Course",covers:"Documents, collections, Mongoose, CRUD",dur:"~1.5 hrs",url:"https://www.youtube.com/watch?v=-56x56UppqQ"},
+    {n:"Redis Crash Course",covers:"Caching, key-value, pub/sub",dur:"~1 hr",url:"https://www.youtube.com/watch?v=jgpVdJB2sKQ"},
+  ]
+},
+{
+  id:6, label:"Phase 6", title:"Full Stack Integration", color:"#534AB7", bg:"#EEEDFE",
+  note:"Next.js ties everything together. Watch the course, then build the MERN stack project end-to-end.",
+  videos:[
+    {n:"Next.js for Beginners — Full Course",covers:"App Router, SSR, SSG, API routes",dur:"~9 hrs",url:"https://www.youtube.com/watch?v=KjY94sAKLlw"},
+    {n:"MERN Stack Course — Full Project Build",covers:"MongoDB, Express, React, Node end-to-end",dur:"~12 hrs",url:"https://www.youtube.com/watch?v=fnpmR6Q5lEc"},
+    {n:"Full Stack Web Dev for Beginners",covers:"HTML, CSS, JS, Node, MongoDB project",dur:"~6 hrs",url:"https://www.youtube.com/watch?v=nu_pCVPKzTk"},
+    {n:"WebSockets & Socket.io Full Course",covers:"Real-time chat, events, rooms",dur:"~2 hrs",url:"https://www.youtube.com/watch?v=ZKEqqIO7n-k"},
+  ]
+},
+{
+  id:7, label:"Phase 7", title:"DevOps & Deployment", color:"#0F6E56", bg:"#E1F5EE",
+  note:"Docker is the most important here. Learn it before CI/CD — pipelines use Docker containers.",
+  videos:[
+    {n:"Docker for Beginners — Full Course",covers:"Images, containers, volumes, compose",dur:"~2 hrs",url:"https://www.youtube.com/watch?v=fqMOX6JJhGo"},
+    {n:"GitHub Actions — Full CI/CD Tutorial",covers:"Workflows, triggers, deploy pipelines",dur:"~5 hrs",url:"https://www.youtube.com/watch?v=TLB5MY9BBa4"},
+    {n:"Linux for Hackers & DevOps — Full Course",covers:"SSH, nginx, users, processes, cron",dur:"~3 hrs",url:"https://www.youtube.com/watch?v=ZtqBQ68cfJc"},
+    {n:"AWS — Full Course for Beginners",covers:"EC2, S3, RDS, IAM, Lambda, CloudFront",dur:"~12 hrs",url:"https://www.youtube.com/watch?v=ulprqHHWlng"},
+  ]
+},
+{
+  id:8, label:"Phase 8", title:"Testing & Code Quality", color:"#3B6D11", bg:"#EAF3DE",
+  note:"Testing is the skill that separates junior from mid-level devs. Don't skip this phase.",
+  videos:[
+    {n:"JavaScript Testing with Jest — Full Course",covers:"Unit tests, mocks, coverage, async tests",dur:"~4 hrs",url:"https://www.youtube.com/watch?v=IPiUDhwnZxA"},
+    {n:"React Testing Library & Jest Tutorial",covers:"Component tests, queries, user events",dur:"~2 hrs",url:"https://www.youtube.com/watch?v=OVNjsIto9xM"},
+    {n:"Playwright Full Course — E2E Testing",covers:"Browser automation, selectors, CI",dur:"~2 hrs",url:"https://www.youtube.com/watch?v=wGr5rz8WKNE"},
+  ]
+},
+{
+  id:9, label:"Phase 9", title:"Advanced & Portfolio", color:"#993556", bg:"#FBEAF0",
+  note:"This phase never ends. Pick topics based on jobs you want. GraphQL and system design are the most asked in interviews.",
+  videos:[
+    {n:"GraphQL Full Course — Novice to Expert",covers:"Schema, resolvers, Apollo Client, queries",dur:"~4 hrs",url:"https://www.youtube.com/watch?v=ed8SzALpx1Q"},
+    {n:"System Design Full Course",covers:"Scaling, caching, load balancing, DBs",dur:"~9 hrs",url:"https://www.youtube.com/watch?v=F2FmTdLtb_4"},
+    {n:"Web Security & Ethical Hacking Course",covers:"OWASP top 10, XSS, CSRF, SQLi",dur:"~15 hrs",url:"https://www.youtube.com/watch?v=3Kq1MIfTWCE"},
+    {n:"Algorithms & Data Structures Full Course",covers:"Big-O, trees, graphs, DP, sorting",dur:"~8 hrs",url:"https://www.youtube.com/watch?v=8hly31xKli0"},
+    {n:"Microservices — Full Course",covers:"Service design, Docker, API gateway",dur:"~3 hrs",url:"https://www.youtube.com/watch?v=EsQkfoXxvLY"},
+  ]
+},
+];
+
+function buildUI(){
+  const c=document.getElementById('phases-container');
+  let total=0;
+  phases.forEach(p=>total+=p.videos.length);
+  document.querySelector('.top-sub').textContent=`9 phases · ${total} videos`;
+  phases.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='phase';
+    div.innerHTML=`
+    <div class="phase-hdr" onclick="toggle(${p.id})">
+      <span class="badge" style="background:${p.bg};color:${p.color}">${p.label}</span>
+      <span class="p-title">${p.title}</span>
+      <span class="p-count">${p.videos.length} videos</span>
+      <span class="chevron" id="ch${p.id}">▼</span>
+    </div>
+    <div class="phase-body" id="pb${p.id}">
+      <p class="body-note">${p.note}</p>
+      <div class="video-list" id="vl${p.id}"></div>
+    </div>`;
+    c.appendChild(div);
+    const vl=div.querySelector(`#vl${p.id}`);
+    p.videos.forEach((v,i)=>{
+      const a=document.createElement('a');
+      a.className='vcard';
+      a.href=v.url;
+      a.target='_blank';
+      a.rel='noopener noreferrer';
+      a.innerHTML=`
+        <span class="vcard-num">${i+1}</span>
+        <div class="vcard-info">
+          <div class="vcard-title">${v.n}</div>
+          <div class="vcard-meta">
+            <span class="vtag covers">${v.covers}</span>
+            <span class="vtag dur">⏱ ${v.dur}</span>
+          </div>
+        </div>
+        <span class="yt-btn">▶ Watch</span>`;
+      vl.appendChild(a);
+    });
+  });
+}
+
+function toggle(id){
+  const b=document.getElementById('pb'+id);
+  const ch=document.getElementById('ch'+id);
+  b.classList.toggle('open');
+  ch.classList.toggle('open');
+}
+
+buildUI();
+toggle(1);
+</script>
